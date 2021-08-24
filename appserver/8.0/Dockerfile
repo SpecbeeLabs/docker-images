@@ -39,26 +39,21 @@ RUN set -eux; \
 COPY conf/php/core.php.ini /usr/local/etc/php/conf.d/core-php.ini
 COPY conf/php/opcache.php.ini /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
 
-RUN mkdir /app
-RUN chown www-data:www-data /app
-
 COPY conf/nginx/default.vhost.conf /etc/nginx/conf.d/default.conf
 COPY conf/nginx/default.nginx.conf /etc/nginx/nginx.conf
 
 # Certbot
-RUN apk upgrade --update-cache --available \
-  ; \
-  apk add openssl
-
-WORKDIR /certs
-
-RUN openssl req -newkey rsa:2048 -nodes -keyout cert.key \
-  -x509 -days 365 -out cert.crt \
-  -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com"
-
+RUN mkdir /certs
+RUN openssl req -newkey rsa:2048 -nodes -keyout /certs/cert.key \
+  -x509 -days 365 -out /certs/cert.crt \
+  -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=localhost"
 COPY conf/nginx/renew /etc/periodic/daily/renew
 RUN chmod +x /etc/periodic/daily/renew
 
+# Make all vendor binaries availabe in PATH.
+RUN mkdir /app
+RUN chown www-data:www-data /app
+ENV PATH="/app/vendor/bin:${PATH}"
 WORKDIR /app
 
 # Entrypoint
