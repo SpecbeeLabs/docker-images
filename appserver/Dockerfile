@@ -36,7 +36,7 @@ RUN set -eux; \
   opcache \
   ;
 
-COPY 8.0/conf/php/core.php.ini /usr/local/etc/php/conf.d/core-opcache.ini
+COPY 8.0/conf/php/core.php.ini /usr/local/etc/php/conf.d/core-php-opcache.ini
 COPY 8.0/conf/php/opcache.php.ini /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
 
 RUN mkdir /app
@@ -46,15 +46,11 @@ COPY 8.0/conf/nginx/default.vhost.conf /etc/nginx/conf.d/default.conf
 COPY 8.0/conf/nginx/default.nginx.conf /etc/nginx/nginx.conf
 
 # Certbot
-RUN apk upgrade --update-cache --available \
-  ; \
-  apk add openssl
-
 WORKDIR /certs
 
 RUN openssl req -newkey rsa:2048 -nodes -keyout cert.key \
   -x509 -days 365 -out cert.crt \
-  -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com"
+  -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=localhost"
 
 COPY 8.0/conf/nginx/renew /etc/periodic/daily/renew
 RUN chmod +x /etc/periodic/daily/renew
