@@ -59,6 +59,9 @@ WORKDIR /app
 # Entrypoint
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-
 ENTRYPOINT [ "../entrypoint.sh" ]
 
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD curl -f http://localhost/ || exit 1
+
+EXPOSE 80 443
